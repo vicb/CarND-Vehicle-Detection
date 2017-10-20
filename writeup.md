@@ -20,6 +20,8 @@ The goals / steps of this project are the following:
 [image2-1]: examples/2-sld_windows.png
 [image2-2]: examples/2-window_scale.png
 [image2-3]: examples/2-heatmap.png
+[image3-1]: examples/3-only_hog.png
+[image3-2]: examples/3-only_hog2.png
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/513/view) Points
 
@@ -50,6 +52,13 @@ Here's the [project video result](./output_images/2-project_video.mp4)
 
 Overall the result is much better than the first submission but there are still a few false positive.
 The improvement comes with some cost. The training is much longer because there are more features and more SVC parameters being optimised. While this is significative, the training cost is paid once and upfront. The processing cost is much more limiting as a frame is processed in about 18s on my PC which is something that should be improved in this submission.
+
+## Trying to speed up by dropping features
+
+My first idea to speed up the training and detection was to drop the binned color and color histogram features. While the training is faster the error rate is too high:
+
+![alt text][image3-1]
+![alt text][image3-2]
 
 -----
 
