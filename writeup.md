@@ -22,12 +22,15 @@ The goals / steps of this project are the following:
 [image2-3]: examples/2-heatmap.png
 [image3-1]: examples/3-only_hog.png
 [image3-2]: examples/3-only_hog2.png
+[image4-1]: examples/4-sld_windows.png
+[image4-2]: examples/4-window_scale.png
+[image4-3]: examples/4-heatmap.png
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/513/view) Points
 
 -----
 
-# Updated submission - Oct 19, 2017
+# Updated submission - Oct 21, 2017
 
 My original submission was not good enough and was trigerring too much false positive.
 I have tried the following to improve my submission
@@ -59,6 +62,67 @@ My first idea to speed up the training and detection was to drop the binned colo
 
 ![alt text][image3-1]
 ![alt text][image3-2]
+
+## [Trying to speed up by optimizing some of the features](Vehicle Detection-Optim.ipynb)
+
+As I described in the previous section, dropping the binned color and the color histogram entirely was giving very bad results with a lot of false positive.
+
+My next idea was to optimize the number of features by:
+- changing the size for the binned color: 32x32, 16x16, 8x8, and dropping,
+- compute the color histogram for the Y channel only,
+- ...
+
+By optimizing the number of features, the training and detection times should both decrease but we want to keep a good detection rate.
+
+Below are the different runs I did to find some good and fast parameters
+
+I started by disabling `GridSearchCV` to get a reference point.
+Training time was 291s for a score of 0.990901.
+
+Then I conduct the following trials:
+
+- binned colors 16 * 16: 267s / 0.989764
+- hist on Y only: 273s / 0.989195
+- cell_per_block = 1: 221s / 0.989764
+- spatial off: 94s / 0.951948
+- binned colors 8 * 8: 71s / 0.98294
+
+I was quite happy with the latest trial which is much faster to train (71s vs 291s) but still has a good accuracy 98.3% vs 99.1%.
+
+Re-enabling `GridSearchCV` for training gives a final training time of 287s for an accuracy of 99.1%
+
+The result seems quite good on still images:
+
+![alt text][image2-1]
+![alt text][image2-2]
+![alt text][image2-3]
+
+A frame only take ~3s to be processed which is a 6x improvement over the first implementation.
+However the number of false positive is also greatly increased.
+Tuning the heatmap parameter to reduce false positive also affects the ability to detect a car.
+
+Here's the [test video result](./output_images/4-test_video.mp4)
+
+Here's the [project video result](./output_images/4-project_video.mp4)
+
+
+## Conclusion / discussion
+
+The first implementation of this new submission achieves a good quality level but still could be improved. There are some false positive in the middle of the road when there is shade. Having more traning samples would probably help here.
+
+In the absence of more training samples, data augmentation could be used, ie by flipping the training samples left to right and by changing the light condition on the samples.
+
+Hard negative mining as suggested in the previous review would probably help.
+
+Instead of working on the accuracy I decided to work on the speed as the first implementation needs about 18s per frame on my machine and training time is also quite big.
+
+I have tried several different things in the second and third implementation but they all lead to more false positives.
+
+One thing I haven't tried is to decrease the resolution of the input image (ie halving it).
+
+There are many parameters that can be tuned in order to achieve better accuracy or better speed and I've learned in this project that it can be tedious to find the best combination.
+
+While working on this project I have also learned about YOLO and SSD which use a NN approach for object detection. It seems lo lead to very good result and the benefit is that most tunable parameters would be learned during the learning process.
 
 -----
 
